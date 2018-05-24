@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-import numpy as np
-import os,sys
 import glob
+import os
+
 import cv2
+import numpy as np
 
 os.environ['GLOG_minloglevel'] = '2'
 import caffe
-from image_feature_extractor import Feature_Extractor
-from Make_Video_Feature_Sets import Video_Feature_Sets
-from Get_Washed_Video_Frame import get_key_frame_and_info
+from src.image_feature_extractor import Feature_Extractor
+from Make_Image_FeatureDB import Feature_DB
 from util import sec_to_hms
-
-import pdb
 
 from conf import *
 
@@ -36,8 +34,8 @@ def content_base_video_retrieval(query,mashup=False,should_plot_result = False):
     mFeature_Extractor = Feature_Extractor()
 
     # Get Feature Sets
-    mVideo_Feature_Sets = Video_Feature_Sets()
-    mVideo_Feature_Sets.load(default_video_feature_sets_path)
+    mVideo_Feature_Sets = Feature_DB()
+    mVideo_Feature_Sets.load(default_feature_database_sets_path)
 
     # get query type.
     # 1)If query is a image,suffix should be the suffix of it;

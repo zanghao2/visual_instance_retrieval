@@ -6,6 +6,10 @@ import pdb
 
 from conf import *
 
+# ##########################
+# 提取视频关键帧并生成必要的描述文件
+# ##########################
+
 class DHash(object):
     @staticmethod
     def calculate_hash(image):

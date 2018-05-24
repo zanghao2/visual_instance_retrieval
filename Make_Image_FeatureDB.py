@@ -1,14 +1,13 @@
-import os,sys
-from image_feature_extractor import Feature_Extractor
-import glob
-import pdb
 import cPickle
+import glob
 
 from conf import *
+from src.image_feature_extractor import Feature_Extractor
 
-class Video_Feature_Sets:
+
+class Feature_DB:
     """
-    Manage Video Feature Sets
+    Manage Image Feature Sets
 
     """
 
@@ -20,6 +19,12 @@ class Video_Feature_Sets:
         self.Feat_Extractor = Feature_Extractor()
 
     def load(self,path):
+        """
+        Load existing FeatureDB if there is one
+
+        :param path:
+        :return:
+        """
         if not os.path.exists(path):
             print('No such file! Make sure you get the right path!')
             exit()
@@ -32,68 +37,86 @@ class Video_Feature_Sets:
         self.Feat_Sets = cPickle.load(open(path,'rb'))
 
 
-    def create(self,video_folder):
+    def create(self, class_name, source_img_folder):
         """
-        Creating a new video feature sets
+        Creating a new image featureDB
 
-        :param video_folder:
+        :param class_name: new class name
+        :param source_img_folder:
         :return:
         """
-        frame_dir = os.path.join(video_folder,'images')
-        video_info_file_path = os.path.join(video_folder,'video_info.txt')
+        frame_dir = os.path.join(source_img_folder, 'images')
 
-        video_info_dict,frames_info,feats = self._get_video_features_and_info(frame_dir,video_info_file_path)
+        feats, image_paths = self._get_image_feature_and_info(frame_dir)
+
+        # get class name list
+        class_name_list = [class_name for _ in feats]
 
         # Creat Feat_Sets        
-        self.Feat_Sets['video_info'] = [video_info_dict]
-        self.Feat_Sets['frame_info'] = frames_info
-        self.Feat_Sets['frame_feature'] = feats
+        self.Feat_Sets['class'] = class_name_list
+        self.Feat_Sets['path'] = image_paths
+        self.Feat_Sets['feature'] = feats
         
         # dump to pickle file
-        fid = open(default_video_feature_sets_path,'wb')
+        fid = open(default_feature_database_sets_path, 'wb')
         cPickle.dump(self.Feat_Sets,fid)
         fid.close()
 
 
-    def add(self,video_folder):
+    def add(self, class_name,source_img_folder):
         """
-        Add new video to current video feature sets
+        Add new/exist class images to current image feature sets
 
-        :param video_folder:
+        :param class_name: new/exist class name
+        :param source_img_folder: dir
         :return:
         """
-        frame_dir = os.path.join(video_folder, 'images')
-        video_info_file_path = os.path.join(video_folder, 'video_info.txt')
+        frame_dir = os.path.join(source_img_folder, 'images')
 
         if not os.path.exists(frame_dir):
-            print('Video frame dir missing! Add failed!')
-            exit()
-
-        if not os.path.exists(video_info_file_path):
-            print('Video info file missing! Add failed!')
+            print('Image file missing! Add failed!')
             exit()
 
         # Load exist Feature Sets if there is one
         if len(self.Feat_Sets)==0:
-            self.load(default_video_feature_sets_path)
+            self.load(default_feature_database_sets_path)
 
         # Add new video features
-        video_info_dict, frames_info, feats = self._get_video_features_and_info(frame_dir, video_info_file_path)
+        feats, image_paths = self._get_image_feature_and_info(frame_dir)
+
+        # get class name list
+        class_name_list = [class_name for _ in feats]
 
         # Creat Feat_Sets
-        self.Feat_Sets['video_info'] = self.Feat_Sets['video_info']+[video_info_dict]
-        self.Feat_Sets['frame_info'] = self.Feat_Sets['frame_info']+frames_info
-        self.Feat_Sets['frame_feature'] = self.Feat_Sets['frame_feature']+feats
+        self.Feat_Sets['class'] = self.Feat_Sets['class'] + class_name_list
+        self.Feat_Sets['path'] = self.Feat_Sets['path'] + image_paths
+        self.Feat_Sets['feature'] = self.Feat_Sets['feature'] + feats
 
         # dump to pickle file
-        fid = open(default_video_feature_sets_path,'wb')
+        fid = open(default_feature_database_sets_path, 'wb')
         cPickle.dump(self.Feat_Sets,fid)
         fid.close()
 
         #pdb.set_trace()
 
-    def remove(self):
+    def remove(self,class_name):
         pass
+
+    # ###########################
+    # Internal functions
+    def _get_image_feature_and_info(self,images_dir):
+
+        feats = []
+
+        frame_paths_list = glob.glob(os.path.join(images_dir, '*.jpg'))
+
+        for path in frame_paths_list:
+            print('Extract--%s'%path.split('/')[-1])
+            ft = self.Feat_Extractor.extract(path)
+            feats.append(ft)
+
+        return feats,frame_paths_list
+
 
     def _get_video_features_and_info(self,frame_dir,video_info_file_path):
         # get feature
@@ -102,8 +125,8 @@ class Video_Feature_Sets:
         frame_paths_list.sort(key=lambda name: int(name.split('_')[-1].split('.')[0]))  # sort by frame NO.
         frame_names_list = [x.split('/')[-1].split('.')[0] for x in frame_paths_list]
 
-        for path in frame_paths_list:
-            print('Extract--%s'%path.split('/')[-1])
+        for idx,path in enumerate(frame_paths_list):
+            print('#%d-Extract--%s'%(idx,path.split('/')[-1]))
             ft = self.Feat_Extractor.extract(path)
             feats.append(ft)
 
@@ -134,12 +157,14 @@ class Video_Feature_Sets:
 
 if __name__ == '__main__':
 
-    my_Video_Feature_Sets = Video_Feature_Sets()
+    my_Video_Feature_Sets = Feature_DB()
 
     # create a video feature sets if there is none
-    if not os.path.exists(default_video_feature_sets_path):
-        default_video_folder = os.path.join(video_key_frame_root,video_name)
-        my_Video_Feature_Sets.create(default_video_folder)
+    class_name = 'Rango-clip'
+
+    if not os.path.exists(default_feature_database_sets_path):
+        default_video_folder = os.path.join(dataset_dir, class_name)
+        my_Video_Feature_Sets.create(class_name, default_video_folder)
 
     # add new video
     #video_folder = os.path.join(wd,'demo','video_key_frames','Rango-clip')
