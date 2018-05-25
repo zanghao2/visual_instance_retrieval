@@ -228,7 +228,7 @@ class FeatureExtractor:
 
         return ft
 
-    def _extract_RMAC_feature(self, image_path, layer='inception_5b/output', region_lever=4):
+    def _extract_RMAC_feature(self, image_path, layer='inception_5b/output', region_lever=3):
         """
         Extracting the R-MAC feature of a image
 

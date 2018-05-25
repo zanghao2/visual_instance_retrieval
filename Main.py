@@ -45,7 +45,7 @@ def search_image_by_image():
 
     :return:
     """
-    # TODO: (1)将特征提取写成通用接口；(2)考虑在处理输入图片的时候不改变图片的 宽高比；(3)尝试多层次的 r-mac feature
+    # TODO: (1)将特征提取写成通用接口(完成)；(2)考虑在处理输入图片的时候不改变图片的 宽高比；(3)尝试多层次的 r-mac feature（初步测试，结果变换不大）
 
     # Query Image Info
     query_img_name = 'goods_0233_2.jpg'
