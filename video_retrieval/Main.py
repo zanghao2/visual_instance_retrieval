@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 
-from Make_Image_FeatureDB import Feature_DB
+from Make_Image_FeatureDB import FeatureDB
 from Search_Video_by_Image import content_base_video_retrieval
 from conf import *
 from util import sec_to_hms
@@ -28,7 +28,7 @@ def Video_Washing():
 # #####
 # 生成视频库
 def Make_DB():
-    my_Video_Feature_Sets = Feature_DB()
+    my_Video_Feature_Sets = FeatureDB()
 
     # create a video feature sets if there is none
     if not os.path.exists(default_feature_database_sets_path):

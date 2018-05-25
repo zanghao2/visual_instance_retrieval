@@ -2,7 +2,7 @@ import cPickle
 import glob
 
 from conf import *
-from src.image_feature_extractor import Feature_Extractor
+from src.image_feature_extractor import FeatureExtractor
 
 
 class Video_Feature_Sets:
@@ -16,7 +16,7 @@ class Video_Feature_Sets:
     Feat_Extractor = None
 
     def __init__(self):
-        self.Feat_Extractor = Feature_Extractor()
+        self.Feat_Extractor = FeatureExtractor()
 
     def load(self,path):
         if not os.path.exists(path):

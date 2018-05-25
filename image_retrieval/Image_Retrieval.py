@@ -7,8 +7,8 @@ import numpy as np
 
 os.environ['GLOG_minloglevel'] = '2'
 import caffe
-from src.image_feature_extractor import Feature_Extractor
-from Make_Image_FeatureDB import Feature_DB
+from src.image_feature_extractor import FeatureExtractor
+from Make_Image_FeatureDB import FeatureDB
 from util import sec_to_hms
 from src.image_scoring import Image_Scoring
 
@@ -29,10 +29,10 @@ def content_base_image_retrieval(query, should_plot_result=False):
     """
 
     # Init Feature Extractor
-    mFeature_Extractor = Feature_Extractor()
+    mFeature_Extractor = FeatureExtractor()
 
     # Get Feature Sets
-    mFeature_Sets = Feature_DB()
+    mFeature_Sets = FeatureDB()
     mFeature_Sets.load(default_feature_database_sets_path)
 
     # get query type.
@@ -45,16 +45,14 @@ def content_base_image_retrieval(query, should_plot_result=False):
     #
     if suffix == '.jpg' or suffix == '.png' or suffix == '.jpeg':
 
-        topN = 4
+        topN = 8
         result_class, result_image_path, result_conf = _search_by_image(mFeature_Extractor, mFeature_Sets, query, top=topN)
-
 
         print('\n')
         print('-----Show Top%d Results-----' % topN)
         for idx, data in enumerate(result_class):
             print('#%d class:%s, score:%f, path:%s' % (idx + 1, result_class[idx], result_conf[idx], result_image_path[idx]))
         print('\n')
-
 
         # plot result
         show_w = 400
@@ -75,7 +73,7 @@ def content_base_image_retrieval(query, should_plot_result=False):
                 fontScale = 0.5
                 fontColor = (255, 255, 255)
                 lineType = 2
-                cv2.putText(img, '%4f'%result_conf[idx],
+                cv2.putText(img, '%4f' % result_conf[idx],
                             bottomLeftCornerOfText,
                             font,
                             fontScale,
@@ -99,7 +97,7 @@ def content_base_image_retrieval(query, should_plot_result=False):
 # #############################
 # Internal Function
 # #############################
-def _search_by_image(Extractor,FeatureSets,Query_Image_Path,conf_thres=0.001,top=10):
+def _search_by_image(Extractor, FeatureSets, Query_Image_Path, conf_thres=0.001, top=10):
     """
     Searching by Image file
 
@@ -111,6 +109,7 @@ def _search_by_image(Extractor,FeatureSets,Query_Image_Path,conf_thres=0.001,top
     :return:
     """
     # --Get query image feature
+    #query_feat = Extractor.extract(Query_Image_Path)
     query_feat = Extractor.extract(Query_Image_Path)
 
     # --Get DB

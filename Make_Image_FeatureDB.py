@@ -2,10 +2,10 @@ import cPickle
 import glob
 
 from conf import *
-from src.image_feature_extractor import Feature_Extractor
+from src.image_feature_extractor import FeatureExtractor
 
 
-class Feature_DB:
+class FeatureDB:
     """
     Manage Image Feature Sets
 
@@ -16,9 +16,9 @@ class Feature_DB:
     Feat_Extractor = None
 
     def __init__(self):
-        self.Feat_Extractor = Feature_Extractor()
+        self.Feat_Extractor = FeatureExtractor()
 
-    def load(self,path):
+    def load(self, path):
         """
         Load existing FeatureDB if there is one
 
@@ -35,7 +35,6 @@ class Feature_DB:
             exit()
 
         self.Feat_Sets = cPickle.load(open(path,'rb'))
-
 
     def create(self, class_name, source_img_folder):
         """
@@ -62,8 +61,7 @@ class Feature_DB:
         cPickle.dump(self.Feat_Sets,fid)
         fid.close()
 
-
-    def add(self, class_name,source_img_folder):
+    def add(self, class_name, source_img_folder):
         """
         Add new/exist class images to current image feature sets
 
@@ -99,26 +97,26 @@ class Feature_DB:
 
         #pdb.set_trace()
 
-    def remove(self,class_name):
+    def remove(self, class_name):
         pass
 
     # ###########################
     # Internal functions
-    def _get_image_feature_and_info(self,images_dir):
+    def _get_image_feature_and_info(self, images_dir, method='R-MAC',
+                                    layer='inception_5b/output', pool='None', norm='None'):
 
         feats = []
 
         frame_paths_list = glob.glob(os.path.join(images_dir, '*.jpg'))
 
-        for path in frame_paths_list:
-            print('Extract--%s'%path.split('/')[-1])
-            ft = self.Feat_Extractor.extract(path)
+        for idx,path in enumerate(frame_paths_list):
+            print('#%d-Extract--%s' % (idx, path.split('/')[-1]))
+            ft = self.Feat_Extractor.extract(path, method=method, layer=layer, pool=pool, norm=norm)
             feats.append(ft)
 
-        return feats,frame_paths_list
+        return feats, frame_paths_list
 
-
-    def _get_video_features_and_info(self,frame_dir,video_info_file_path):
+    def _get_video_features_and_info(self, frame_dir, video_info_file_path):
         # get feature
         feats = []
         frame_paths_list = glob.glob(os.path.join(frame_dir, '*.jpg'))
@@ -157,14 +155,14 @@ class Feature_DB:
 
 if __name__ == '__main__':
 
-    my_Video_Feature_Sets = Feature_DB()
+    my_Feature_Sets = FeatureDB()
 
     # create a video feature sets if there is none
     class_name = 'Rango-clip'
 
     if not os.path.exists(default_feature_database_sets_path):
         default_video_folder = os.path.join(dataset_dir, class_name)
-        my_Video_Feature_Sets.create(class_name, default_video_folder)
+        my_Feature_Sets.create(class_name, default_video_folder)
 
     # add new video
     #video_folder = os.path.join(wd,'demo','video_key_frames','Rango-clip')

@@ -7,8 +7,8 @@ import numpy as np
 
 os.environ['GLOG_minloglevel'] = '2'
 import caffe
-from src.image_feature_extractor import Feature_Extractor
-from Make_Image_FeatureDB import Feature_DB
+from src.image_feature_extractor import FeatureExtractor
+from Make_Image_FeatureDB import FeatureDB
 from util import sec_to_hms
 
 from conf import *
@@ -31,10 +31,10 @@ def content_base_video_retrieval(query,mashup=False,should_plot_result = False):
     """
 
     # Init Feature Extractor
-    mFeature_Extractor = Feature_Extractor()
+    mFeature_Extractor = FeatureExtractor()
 
     # Get Feature Sets
-    mVideo_Feature_Sets = Feature_DB()
+    mVideo_Feature_Sets = FeatureDB()
     mVideo_Feature_Sets.load(default_feature_database_sets_path)
 
     # get query type.
