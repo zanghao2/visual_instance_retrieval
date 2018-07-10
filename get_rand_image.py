@@ -3,8 +3,8 @@ import sys
 import random
 import shutil
 
-imgdir = '/mnt/lvm/hdd/zhaoguangyu/data/missfresh_goods'
-savedir = '/mnt/lvm/hdd/zhaoguangyu/data'
+imgdir = '../data/missfresh_goods'
+savedir = '../data'
 dirlist = os.listdir(imgdir)
 
 search_p = open("./lib_name.txt",'wt')
